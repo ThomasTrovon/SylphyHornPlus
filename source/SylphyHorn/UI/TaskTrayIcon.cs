@@ -325,7 +325,7 @@ namespace SylphyHorn.UI
 			var contextMenu = this._notifyIcon?.ContextMenuStrip;
 			if (contextMenu == null) return;
 
-			// Descartar os itens antigos também libera seus recursos nativos.
+			// Disposing old items also releases their native resources.
             foreach (var oldItem in contextMenu.Items.Cast<ToolStripItem>().ToArray()) oldItem.Dispose();
             contextMenu.Items.Clear();
 			foreach (var item in this._items.Where(x => x.CanDisplay()))

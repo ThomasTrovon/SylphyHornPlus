@@ -108,8 +108,8 @@ namespace SylphyHorn.Services
 
 		private void RefreshModifiers()
 		{
-			// A tela de bloqueio e outras aplicações podem consumir o KeyUp.
-			// No evento de uma tecla comum, o estado físico dos modificadores já está atualizado.
+			// The lock screen and other applications may consume KeyUp.
+			// When a regular key event arrives, the physical modifier state is already up to date.
 			this._pressedModifiers.Clear();
 			foreach (var key in ModifierKeys)
 				if (this._isKeyDown(key))
@@ -200,7 +200,7 @@ namespace SylphyHorn.Services
 			this.ButtonPressed?.Invoke(this, pressedEventArgs);
 			state.Handled = pressedEventArgs.Handled;
 
-			// A roda é um impulso, não um botão que permanece pressionado.
+			// The wheel produces a pulse, not a button that remains pressed.
 		}
 	}
 }

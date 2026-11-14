@@ -10,8 +10,8 @@ using System.Windows.Threading;
 namespace SylphyHorn.UI.Controls
 {
     /// <summary>
-    /// Pesquisa uma cópia visual da lista sem filtrar a fonte nem apagar a seleção persistida.
-    /// O texto pesquisado nunca é enviado ao binding de SelectedValue.
+    /// Search a visual copy of the list without filtering the source or clearing the persisted selection.
+    /// Search text is never sent to the SelectedValue binding.
     /// </summary>
     public class SearchableComboBox : ComboBox
     {
@@ -83,7 +83,7 @@ namespace SylphyHorn.UI.Controls
 
         private void SelectResult(object sender, MouseButtonEventArgs e)
         {
-            // Cliques na barra de rolagem ou no espaço vazio não confirmam uma opção antiga.
+            // Clicks on the scrollbar or empty space must not confirm a stale option.
             if (ItemsControl.ContainerFromElement(_results, e.OriginalSource as DependencyObject) is ListBoxItem)
             {
                 CommitResult();

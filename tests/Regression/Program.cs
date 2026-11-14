@@ -82,7 +82,7 @@ internal static class Program
         var current = service.GetProperty("Current").GetValue(null);
         var cultures = (System.Collections.Generic.IEnumerable<System.Globalization.CultureInfo>)service.GetProperty("SupportedCultures").GetValue(current);
         Check(cultures.Any(c => c.Name == "pt-BR"), "PT-BR disponível no seletor");
-        // Cria o XAML com a cultura selecionada para também detectar erros nas ligações traduzidas.
+        // Create the XAML with the selected culture to detect errors in localized bindings.
         service.GetMethod("ChangeCulture").Invoke(current, new object[] { "pt-BR" });
         Check(File.Exists(Path.Combine(Path.GetDirectoryName(App.Location), "SchedulerManager.exe")), "auxiliar de inicialização distribuído");
     }
@@ -108,7 +108,7 @@ internal static class Program
 
     private static void TestWhatsAppOnDesktop()
     {
-        // Exercitar o serviço real, sem iniciar outra instância do gerenciador de áreas.
+        // Exercise the real service without starting another desktop manager instance.
         var type = T("WhatsAppClickThroughService");
         var errors = new List<Exception>();
         var windows = new List<IntPtr>();
@@ -128,7 +128,7 @@ internal static class Program
             foreach (var window in windows)
             {
                 Check((GetWindowLong(window, -20) & 0x20) != 0, "liberar hit-test da janela " + window.ToString("X"));
-                // Reproduzir uma reposição de estilos pelo próprio WebView.
+                // Reproduce the WebView resetting its own styles.
                 SetWindowLong(window, -20, GetWindowLong(window, -20) & ~0x20);
             }
             System.Threading.Thread.Sleep(1500);
@@ -155,10 +155,10 @@ internal static class Program
         var detector = Detector(physical);
         try
         {
-            KeyDown(detector, Keys.LWin); // KeyUp perdido ao sair da sessão.
+            KeyDown(detector, Keys.LWin); // KeyUp was lost when leaving the session.
             KeyDown(detector, Keys.D5);
             Check(KeysOf(detector, "_pressedModifiers").Count == 0, "remover modificador cujo KeyUp foi perdido");
-            physical.Add(Keys.RControlKey); // KeyDown ocorreu antes da instalação/retomada do hook.
+            physical.Add(Keys.RControlKey); // KeyDown occurred before the hook was installed or resumed.
             KeyDown(detector, Keys.D5);
             Check(KeysOf(detector, "_pressedModifiers").SetEquals(physical), "recuperar modificador físico sem KeyDown observado");
             detector.GetType().GetMethod("Stop").Invoke(detector, null);
@@ -330,7 +330,7 @@ internal static class Program
         if (failure != null) throw failure;
     }
 
-    // Exercita o aplicativo compilado, com o tema e os dados reais, e encerra todos os serviços ao concluir.
+    // Exercise the compiled application with its real theme and data, then shut down all services.
     private static void TestLayout(string folder)
     {
         Directory.CreateDirectory(folder);
@@ -393,7 +393,7 @@ internal static class Program
                 }
                 finally { screenCheckbox.SetCurrentValue(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, originalChecked); }
                 window.Close(); window = null;
-                // Reabre uma janela nova após fechar, exercitando os callbacks reais de descarte.
+                // Open a new window after closing the previous one to exercise the real disposal callbacks.
                 for (var i = 0; i < 2; i++)
                 {
                     window = (System.Windows.Window)Activator.CreateInstance(App.GetType("SylphyHorn.UI.SettingsWindow"), true);
@@ -421,10 +421,10 @@ internal static class Program
         if (failure != null) throw failure;
     }
 
-    // Renderiza o XAML real sem iniciar hooks, serviços ou persistir configurações do usuário.
+    // Render the real XAML without starting hooks or services or persisting user settings.
     private static void TestAlwaysOnTop()
     {
-        // Isola leituras e gravações automáticas das preferências reais do usuário.
+        // Isolate automatic reads and writes from the user's actual preferences.
         var providerType = App.GetType("SylphyHorn.Serialization.LocalSettingsProvider");
         var provider = providerType.GetProperty("Instance").GetValue(null);
         var temporarySettings = Path.Combine(Path.GetTempPath(), "sylphy-topmost-test-" + Guid.NewGuid().ToString("N") + ".xml");

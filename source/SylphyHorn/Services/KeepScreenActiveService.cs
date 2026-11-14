@@ -7,8 +7,8 @@ using System.Threading;
 namespace SylphyHorn.Services
 {
     /// <summary>
-    /// Mantém tela/sistema ativos sem alterar o plano de energia nem desativar o protetor no registro.
-    /// A solicitação pertence à thread e o Windows a remove mesmo se o processo terminar inesperadamente.
+    /// Keep the display and system awake without changing the power plan or disabling the screen saver in the registry.
+    /// The request belongs to the thread; Windows removes it even if the process exits unexpectedly.
     /// </summary>
     internal sealed class KeepScreenActiveService : IDisposable
     {
@@ -49,7 +49,7 @@ namespace SylphyHorn.Services
                 {
                     try
                     {
-                        // Não interfere no bloqueio manual, na tela de senha nem em prompts seguros.
+                        // Do not interfere with manual locking, the sign-in screen, or secure prompts.
                         var requested = _enabled && IsInteractiveDesktop();
                         if (requested != _active)
                         {
@@ -98,8 +98,8 @@ namespace SylphyHorn.Services
 
         internal static void ResetScreenSaverIdle()
         {
-            // ES_DISPLAY_REQUIRED não impede o protetor. Movimento relativo ZERO renova a atividade
-            // sem deslocar o cursor, clicar, rolar ou digitar. Não escreve configurações globais.
+            // ES_DISPLAY_REQUIRED does not prevent the screen saver. ZERO relative movement renews activity
+            // without moving the cursor, clicking, scrolling, or typing. No global settings are written.
             var input = new Input { Mouse = new MouseInput { Flags = 0x0001, ExtraInfo = new UIntPtr(0x53594841u) } };
             if (SendInput(1, new[] { input }, Marshal.SizeOf(typeof(Input))) != 1)
                 throw new Win32Exception(Marshal.GetLastWin32Error(), "O Windows recusou a renovação de atividade da tela.");
@@ -126,7 +126,7 @@ namespace SylphyHorn.Services
                 _disposed = true;
                 _changed.Set();
             }
-            // A mesma thread que solicitou energia libera a solicitação antes de encerrar.
+            // The thread that requested power releases the request before exiting.
             _worker.Join();
             _changed.Dispose();
         }
@@ -136,7 +136,7 @@ namespace SylphyHorn.Services
         {
             public int X; public int Y; public uint Data; public uint Flags; public uint Time; public UIntPtr ExtraInfo;
         }
-        // MOUSEINPUT é o maior membro da união INPUT tanto em x86 quanto em x64.
+        // MOUSEINPUT is the largest member of the INPUT union on both x86 and x64.
         [StructLayout(LayoutKind.Sequential)] private struct Input { public uint Type; public MouseInput Mouse; }
         [DllImport("kernel32.dll", SetLastError = true)] private static extern uint SetThreadExecutionState(uint flags);
         [DllImport("user32.dll", SetLastError = true)] private static extern uint SendInput(uint count, Input[] inputs, int size);

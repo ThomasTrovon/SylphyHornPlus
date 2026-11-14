@@ -262,7 +262,7 @@ namespace SylphyHorn
 			registrationInfo.Author = "";
 			registrationInfo.Description = "";
 			var principal = taskDefinition.Principal;
-			// A tarefa pertence ao usuário atual e executa somente em sua sessão interativa.
+			// The task belongs to the current user and runs only in their interactive session.
 			principal.UserId = WindowsIdentity.GetCurrent().User.Value;
 			trigger.UserId = principal.UserId;
 			principal.LogonType = 3;

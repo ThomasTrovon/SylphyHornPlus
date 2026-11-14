@@ -5,13 +5,13 @@
     <OutputType>WinExe</OutputType>
     <Title>SylphyHornPlus</Title>
     <Product>SylphyHornPlus</Product>
-    <Version>4.5.0</Version>
+    <Version>4.5.1</Version>
     <Authors>Asteski; Thomas Nilton de Carvalho Vanini</Authors>
     <Company>Asteski</Company>
     <Copyright>Copyright © 2015 - 2018 Manato KAMEYA, 2021 - 2022 hwtnb, 2026 Asteski, 2026 Thomas Nilton de Carvalho Vanini</Copyright>
     <Description>Virtual Desktop Tools for Windows 11 and 10</Description>
     <AssemblyTitle>SylphyHornPlus</AssemblyTitle>
-    <AssemblyVersion>4.5.0.2</AssemblyVersion>
+    <AssemblyVersion>4.5.1.3</AssemblyVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
@@ -260,7 +260,7 @@
     </Compile>
   </ItemGroup>
 
-  <!-- Sempre distribuir o auxiliar junto do aplicativo, inclusive em builds do projeto isolado. -->
+  <!-- Always ship the helper with the application, including standalone project builds. -->
   <Target Name="CopySchedulerManager" BeforeTargets="PostBuild">
     <MSBuild Projects="$(MSBuildProjectDirectory)\..\SylphyHorn.SchedulerManager\SylphyHorn.SchedulerManager.csproj" Targets="GetTargetPath" Properties="Configuration=$(Configuration);TargetFramework=$(TargetFramework)">
       <Output TaskParameter="TargetOutputs" ItemName="SchedulerBinary" />

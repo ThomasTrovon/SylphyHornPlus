@@ -123,7 +123,7 @@ namespace SylphyHorn
 			var current = SettingsWindow.Instance;
 			if (current != null && !current.IsClosed)
 			{
-				// O clique que fecha a janela cai no ícone da bandeja. A janela já fechada não pode ser mostrada de novo.
+				// The click that closes the window lands on the tray icon. A closed window cannot be shown again.
 				if (!current.IsVisible) return;
 
 				if (selectAbout)
@@ -166,7 +166,7 @@ namespace SylphyHorn
 			}
 			finally
 			{
-				// Também libera a referência se a abertura falhar antes de emitir Closed.
+				// Also release the reference if opening fails before Closed is raised.
 				if (ReferenceEquals(SettingsWindow.Instance, window)) SettingsWindow.Instance = null;
 			}
 		}

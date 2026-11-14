@@ -11,7 +11,7 @@
 Keyboard and mouse shortcuts, desktop notifications, taskbar information and practical fixes for everyday multitasking.
 
 ![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4)
-![Version](https://img.shields.io/badge/version-4.5.0-blue)
+![Version](https://img.shields.io/badge/version-4.5.1-blue)
 ![Build](https://img.shields.io/badge/build-1-informational)
 ![Framework](https://img.shields.io/badge/.NET_Framework-4.8-512BD4)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -171,7 +171,7 @@ docs/images/                     # README screenshots
 Atalhos de teclado e mouse, notificações, informações na barra de tarefas e correções práticas para trabalhar com várias áreas.
 
 ![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4)
-![Versão](https://img.shields.io/badge/versão-4.5.0-blue)
+![Versão](https://img.shields.io/badge/versão-4.5.1-blue)
 ![Build](https://img.shields.io/badge/build-1-informational)
 ![Framework](https://img.shields.io/badge/.NET_Framework-4.8-512BD4)
 ![Licença](https://img.shields.io/badge/licença-MIT-green)

@@ -39,7 +39,7 @@ namespace SylphyHorn.Services
             GetClassName(handle, name, name.Capacity);
             if (name.ToString() == "Progman" || name.ToString() == "WorkerW" || name.ToString().StartsWith("Shell_Tray")) return;
             if (windows.ContainsKey(handle)) { Release(handle); return; }
-            // Uma janela já fixada por outro programa também pode ser desafixada explicitamente.
+            // A window already pinned by another program can also be explicitly unpinned.
             if ((GetWindowLong(handle, -20) & 8) != 0)
             {
                 SetTopmost(handle, false);
@@ -65,7 +65,7 @@ namespace SylphyHorn.Services
         {
             foreach (var handle in windows.Keys.ToArray())
             {
-                // A propriedade desaparece ao destruir a janela, evitando atuar em um HWND reutilizado.
+                // The property disappears when the window is destroyed, preventing changes to a reused HWND.
                 if (GetProp(handle, marker) == IntPtr.Zero) { Forget(handle); continue; }
                 if ((GetWindowLong(handle, -20) & 8) == 0) { Release(handle); continue; }
                 var thickness = Math.Max(0, Math.Min(20, Settings.General.AlwaysOnTopBorderWidth.Value));
@@ -87,7 +87,7 @@ namespace SylphyHorn.Services
                         Content = new Border() };
                     var helper = new WindowInteropHelper(overlay);
                     helper.EnsureHandle();
-                    // WS_EX_TRANSPARENT + NOACTIVATE: a borda nunca recebe cliques nem foco.
+                    // WS_EX_TRANSPARENT + NOACTIVATE: the border never receives clicks or focus.
                     SetWindowLong(helper.Handle, -20, GetWindowLong(helper.Handle, -20) | 0x080000A0);
                     windows[handle] = overlay;
                 }
@@ -98,7 +98,7 @@ namespace SylphyHorn.Services
                 ((Border)overlay.Content).BorderBrush = new SolidColorBrush(color);
                 ((Border)overlay.Content).BorderThickness = new Thickness(thickness * 96.0 / Math.Max(96u, dpi));
                 overlay.Show();
-                // Coordenadas físicas preservam o alinhamento em monitores com escalas diferentes.
+                // Physical coordinates preserve alignment across monitors with different scaling factors.
                 SetWindowPos(new WindowInteropHelper(overlay).Handle, new IntPtr(-1), rect.Left, rect.Top,
                     Math.Max(1, rect.Right - rect.Left), Math.Max(1, rect.Bottom - rect.Top), 0x10);
             }

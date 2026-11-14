@@ -61,7 +61,7 @@ namespace SylphyHorn.Services.Mouse
 
 			this._nativeMethodCallback = HookProcedure;
 			// Um assembly gerenciado carregado separadamente pode ter HINSTANCE = -1.
-			// O hook de baixo nível executa neste processo e usa seu módulo nativo.
+			// The low-level hook runs in this process and uses its native module.
 			IntPtr h = NativeMethods.GetModuleHandle(null);
 
 			// WH_MOUSE_LL = 14
@@ -88,7 +88,7 @@ namespace SylphyHorn.Services.Mouse
 				IsHooking = false;
 				IsSuspended = true;
 
-				// Preservar os callbacks para permitir StopCapturing seguido de StartCapturing.
+				// Preserve callbacks so StopCapturing can be followed by StartCapturing.
 
 				NativeMethods.UnhookWindowsHookEx(_handle);
 				this._handle = IntPtr.Zero;

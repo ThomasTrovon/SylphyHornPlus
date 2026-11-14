@@ -49,7 +49,7 @@ namespace SylphyHorn.Services
 		{
 			unchecked
 			{
-				// A igualdade compara o conteúdo sem considerar a ordem dos modificadores.
+				// Equality compares the contents independently of modifier order.
 				var hashCode = 0;
 				foreach (var modifier in (this.ModifiersInternal ?? this.Modifiers ?? Array.Empty<VirtualKey>()).OrderBy(key => key))
 					hashCode = (hashCode * 397) ^ (int)modifier;
@@ -68,8 +68,8 @@ namespace SylphyHorn.Services
 		}
 
 		/// <summary>
-		/// O atalho gravado pode pedir um modificador de qualquer lado.
-		/// Shift, Control, Menu e o valor de Win genérico aceitam a tecla esquerda ou a direita.
+		/// The saved shortcut may accept a modifier on either side.
+		/// Shift, Control, Menu, and the generic Win value accept either the left or right key.
 		/// </summary>
 		public bool MatchesPressed(ShortcutKey pressed)
 		{

@@ -8,8 +8,8 @@ using System.Threading;
 namespace SylphyHorn.Services
 {
     /// <summary>
-    /// Impede que o WebView invisível do WhatsApp intercepte cliques em outra área.
-    /// Todas as consultas COM e alterações de janela pertencem a uma única thread.
+    /// Prevent an invisible WhatsApp WebView from intercepting clicks on another desktop.
+    /// All COM queries and window changes belong to a single thread.
     /// </summary>
     internal sealed class WhatsAppClickThroughService : IDisposable
     {
@@ -60,7 +60,7 @@ namespace SylphyHorn.Services
                     }
                     catch (Exception ex)
                     {
-                        // Explorer pode reiniciar. Recriar o objeto COM na próxima passagem.
+                        // Explorer may restart. Recreate the COM object on the next iteration.
                         if (manager != null) Marshal.ReleaseComObject(manager);
                         manager = null;
                         this.RestoreAll();
@@ -70,7 +70,7 @@ namespace SylphyHorn.Services
                             lastError = DateTime.UtcNow;
                         }
                     }
-                    // Desativado, aguardar somente configuração ou encerramento.
+                    // While disabled, wait only for configuration changes or shutdown.
                     if (WaitHandle.WaitAny(waits, this._enabled || this._modified.Count > 0 ? 500 : Timeout.Infinite) == 0) break;
                 }
             }
@@ -113,8 +113,8 @@ namespace SylphyHorn.Services
                 if (manager.IsWindowOnCurrentVirtualDesktop(root, out var onCurrent) != 0 || onCurrent) continue;
                 if (!IsWindowVisible(window) || !IsInvisibleLayeredWindow(window)) continue;
 
-                // Em uma janela layered, WS_EX_TRANSPARENT também libera o hit-test.
-                // Preservar a visibilidade evita interferir no ciclo de vida do WebView.
+                // On a layered window, WS_EX_TRANSPARENT also allows hit testing to pass through.
+                // Preserving visibility avoids interfering with the WebView lifecycle.
                 if (!candidate.Matches()) continue;
                 if (this._modified.TryGetValue(window, out var previous)
                     && (!previous.Matches() || GetProp(window, this._ownershipProperty) != new IntPtr(1)))
@@ -123,9 +123,9 @@ namespace SylphyHorn.Services
                 if ((style & Transparent) != 0 && !this._modified.ContainsKey(window)) continue;
                 if ((style & Transparent) == 0)
                 {
-                    // O WebView pode repor seus estilos enquanto continua em outra área.
-                    // Nesse caso, reaplicar a correção, mantendo a mesma identidade.
-                    // A propriedade desaparece com a janela, protegendo contra reutilização do HWND.
+                    // The WebView may reset its styles while remaining on another desktop.
+                    // In that case, reapply the workaround while retaining the same identity.
+                    // The property disappears with the window, protecting against HWND reuse.
                     if (!SetProp(window, this._ownershipProperty, new IntPtr(1)))
                         throw new Win32Exception(Marshal.GetLastWin32Error());
                     SetLastError(0);
@@ -157,14 +157,14 @@ namespace SylphyHorn.Services
             var identity = this._modified[window];
             if (identity.Matches() && GetProp(window, this._ownershipProperty) == new IntPtr(1))
             {
-                // Restaurar somente o bit que alteramos. O aplicativo pode mudar os demais.
+                // Restore only the bit we changed; the application may change the others.
                 var style = GetWindowLong(window, ExtendedStyle);
                 if ((style & Transparent) != 0)
                 {
                     SetLastError(0);
                     if (SetWindowLong(window, ExtendedStyle, style & ~Transparent) == 0
                         && Marshal.GetLastWin32Error() != 0)
-                        return; // Manter para repetir a restauração na próxima passagem.
+                        return; // Keep the entry to retry restoration on the next iteration.
                 }
             }
             RemoveProp(window, this._ownershipProperty);
@@ -196,7 +196,7 @@ namespace SylphyHorn.Services
             if (this._disposed) return;
             this._disposed = true;
             this._stop.Set();
-            // A thread não chama a interface de forma síncrona e conclui a restauração antes de sair.
+            // The thread does not call the UI synchronously and completes restoration before exiting.
             this._worker.Join();
             this._stop.Dispose();
             this._changed.Dispose();

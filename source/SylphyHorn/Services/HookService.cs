@@ -68,7 +68,7 @@ namespace SylphyHorn.Services
 
 		private void QueueHookRecovery()
 		{
-			// Hooks pertencem à thread com o loop de mensagens que os instalou.
+			// Hooks belong to the thread whose message loop installed them.
 			VisualHelper.InvokeOnUIDispatcher(() =>
 			{
 				if (this._disposed) return;
@@ -158,7 +158,7 @@ namespace SylphyHorn.Services
 			var target = hookActions.FirstOrDefault(x => x.CanExecute() && x.GetShortcutKey().MatchesPressed(args.ShortcutKey));
 			if (target != null && target.CanExecute())
 			{
-				// Capturar o destino agora: o foco pode mudar antes de executar a ação agendada.
+				// Capture the target now: focus may change before the queued action executes.
 				var foreground = InteropHelper.GetForegroundWindowEx();
 				var shortcutDescription = args.ShortcutKey.ToString();
 				VisualHelper.InvokeOnUIDispatcher(() =>

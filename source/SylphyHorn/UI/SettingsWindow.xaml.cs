@@ -18,7 +18,7 @@ namespace SylphyHorn.UI
 		{
 			ApplyWindows11ControlStyles();
 			this.InitializeComponent();
-			// A janela deve caber na área útil, inclusive com escala de exibição elevada.
+			// The window must fit within the work area, including at high display scaling.
 			var workArea = SystemParameters.WorkArea;
 			this.MinWidth = Math.Min(this.MinWidth, workArea.Width);
 			this.MinHeight = Math.Min(this.MinHeight, workArea.Height);
@@ -28,7 +28,7 @@ namespace SylphyHorn.UI
 
 		protected override void OnClosed(EventArgs e)
 		{
-			// Limpa a referência antes dos callbacks de Closed, que podem reentrar pela bandeja.
+			// Clear the reference before Closed callbacks, which may reenter through the tray.
 			this.IsClosed = true;
 			if (ReferenceEquals(Instance, this)) Instance = null;
 			base.OnClosed(e);
@@ -119,7 +119,7 @@ namespace SylphyHorn.UI
 
 		private static void ApplyWindows11ControlStyles()
 		{
-			// O seletor com busca usa este template também no Windows 10.
+			// The searchable selector also uses this template on Windows 10.
 
 			var dictionaries = Application.Current.Resources.MergedDictionaries;
 			var source = new Uri("pack://application:,,,/SylphyHorn;component/Styles/Windows11SettingsControls.xaml", UriKind.Absolute);

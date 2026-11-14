@@ -1389,7 +1389,7 @@ namespace SylphyHorn.UI.Bindings
 			{
 				try
 				{
-					// O using devolve a captura mesmo se a sincronização ou a interface falhar.
+					// The using block releases capture even if synchronization or UI operations fail.
 					using (this._hookService?.Suspend())
 					{
 						var filePath = message.Response[0];
@@ -1426,7 +1426,7 @@ namespace SylphyHorn.UI.Bindings
 						var provider = LocalSettingsProvider.Instance;
 						provider.Clear();
 						await provider.SaveAsync();
-						// Retomar no dispatcher WPF, sem ContinueWith no pool de threads.
+						// Resume on the WPF dispatcher rather than using ContinueWith on the thread pool.
 						SettingsService.Synchronize(overrideDesktops: false);
 						this._Desktops = VirtualDesktopViewModel.CreateAll();
 						this.NotifyOfAllPropertiesChanged();

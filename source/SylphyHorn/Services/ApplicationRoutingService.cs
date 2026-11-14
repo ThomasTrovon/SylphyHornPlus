@@ -393,7 +393,7 @@ namespace SylphyHorn.Services
 			try
 			{
 				name = Path.GetFileName(name);
-				// ProcessName já vem sem .exe. Pontos no nome (WhatsApp.Root) fazem parte da identidade.
+				// ProcessName already excludes .exe. Dots in names such as WhatsApp.Root are part of the identity.
 				if (name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
 					name = name.Substring(0, name.Length - 4);
 			}

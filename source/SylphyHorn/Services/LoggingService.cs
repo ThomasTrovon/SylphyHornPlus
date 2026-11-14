@@ -24,13 +24,13 @@ namespace SylphyHorn.Services
 		public void Register(ILog log)
 		{
 			this.Logs.Add(log);
-			// Diagnósticos de atalhos são frequentes. Limitar o histórico em memória.
+			// Shortcut diagnostics are frequent; keep the in-memory history bounded.
 			while (this.Logs.Count > 1000) this.Logs.RemoveAt(0);
 		}
 
 		public void Register(string header, string content)
 		{
-			// Diagnóstico local, sem encaminhar eventos de teclado à telemetria.
+			// Local diagnostics only; do not forward keyboard events to telemetry.
 			this.Register(new Log(header, content));
 		}
 

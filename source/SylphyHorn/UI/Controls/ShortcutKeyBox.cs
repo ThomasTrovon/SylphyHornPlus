@@ -52,7 +52,7 @@ namespace SylphyHorn.UI.Controls
 		private ShortcutKey? CurrentAsKeys
 		{
 			get { return this.Current?.ToShortcutKey(); }
-			// Atualizações internas não podem substituir o binding que salva o atalho.
+			// Internal updates must not replace the binding that saves the shortcut.
 			set { this.SetCurrentValue(CurrentProperty, value?.ToSerializable()); }
 		}
 
@@ -89,7 +89,7 @@ namespace SylphyHorn.UI.Controls
 			var keytop = FindAncestor<Keytop>(e.OriginalSource as DependencyObject);
 			if (this.IsEnabled && !this.IsReadOnly && keytop != null && !ReferenceEquals(keytop, this._keyPresenter) && IsSideModifier(keytop.Key))
 			{
-				// O clique no modificador troca o lado sem entrar no modo de captura.
+				// Clicking a modifier changes its side without entering capture mode.
 				this.CycleModifier(keytop.Key);
 				e.Handled = true;
 				return;
