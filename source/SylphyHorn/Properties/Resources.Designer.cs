@@ -2210,5 +2210,9 @@ namespace SylphyHorn.Properties {
         public static string Settings_KeepScreenActiveFailed => ResourceManager.GetString("Settings_KeepScreenActiveFailed", resourceCulture);
         public static string Settings_Energy => ResourceManager.GetString("Settings_Energy", resourceCulture);
         public static string Settings_KeepScreenActiveHint => ResourceManager.GetString("Settings_KeepScreenActiveHint", resourceCulture);
+        public static string Settings_AlwaysOnTop => ResourceManager.GetString("Settings_AlwaysOnTop", resourceCulture);
+        public static string Settings_AlwaysOnTopHint => ResourceManager.GetString("Settings_AlwaysOnTopHint", resourceCulture);
+        public static string Settings_AlwaysOnTopWidth => ResourceManager.GetString("Settings_AlwaysOnTopWidth", resourceCulture);
+        public static string Settings_AlwaysOnTopColor => ResourceManager.GetString("Settings_AlwaysOnTopColor", resourceCulture);
     }
 }

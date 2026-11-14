@@ -20,6 +20,7 @@ namespace SylphyHorn
 	public class ApplicationPreparation : IDisposableHolder
 	{
 		private readonly HookService _hookService;
+        private readonly AlwaysOnTopService _alwaysOnTop;
 		private readonly Action _shutdownAction;
 		private readonly IDisposableHolder _disposable;
 		private TaskTrayIcon _taskTrayIcon;
@@ -36,6 +37,8 @@ namespace SylphyHorn
 
 		public ApplicationPreparation(HookService hookService, Action shutdownAction, IDisposableHolder disposable)
 		{
+            this._alwaysOnTop = new AlwaysOnTopService().AddTo(disposable);
+            Settings.General.AlwaysOnTopEnabled.Subscribe(this._alwaysOnTop.SetEnabled).AddTo(disposable);
 			this._hookService = hookService;
 			this._shutdownAction = shutdownAction;
 			this._disposable = disposable;
@@ -56,6 +59,8 @@ namespace SylphyHorn
 		public void RegisterActions()
 		{
 			this.ClearActionRegistrations();
+            this._hookService.RegisterKeyAction(() => Settings.ShortcutKey.ToggleAlwaysOnTop.ToShortcutKey(),
+                this._alwaysOnTop.Toggle, () => Settings.General.AlwaysOnTopEnabled.Value).AddTo(this);
 			this.RegisterActions(Settings.ShortcutKey, this._hookService.RegisterKeyAction);
 			this.RegisterActions(Settings.MouseShortcut, this._hookService.RegisterMouseAction);
 		}

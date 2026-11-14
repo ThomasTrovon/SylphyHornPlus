@@ -17,6 +17,10 @@ namespace SylphyHorn.Serialization
 
 		public SerializableProperty<bool> WhatsAppClickThrough => this.Cache(key => new SerializableProperty<bool>(key, this._provider));
 
+        public SerializableProperty<bool> AlwaysOnTopEnabled => this.Cache(key => new SerializableProperty<bool>(key, this._provider));
+        public SerializableProperty<int> AlwaysOnTopBorderWidth => this.Cache(key => new SerializableProperty<int>(key, this._provider, 2));
+        public SerializableProperty<string> AlwaysOnTopBorderColor => this.Cache(key => new SerializableProperty<string>(key, this._provider, "#0078D7"));
+
 		public SerializableProperty<bool> KeepScreenActive => this.Cache(key => new SerializableProperty<bool>(key, this._provider));
 
 		public SerializableProperty<bool> LoopDesktop => this.Cache(key => new SerializableProperty<bool>(key, this._provider));

@@ -155,7 +155,7 @@ namespace SylphyHorn.Services
 		{
 			if (args.ShortcutKey == ShortcutKey.None) return;
 
-			var target = hookActions.FirstOrDefault(x => x.GetShortcutKey().MatchesPressed(args.ShortcutKey));
+			var target = hookActions.FirstOrDefault(x => x.CanExecute() && x.GetShortcutKey().MatchesPressed(args.ShortcutKey));
 			if (target != null && target.CanExecute())
 			{
 				// Capturar o destino agora: o foco pode mudar antes de executar a ação agendada.
@@ -177,7 +177,7 @@ namespace SylphyHorn.Services
 		{
 			if (args.ShortcutKey == ShortcutKey.None) return;
 
-			var target = hookActions.FirstOrDefault(x => x.GetShortcutKey().MatchesPressed(args.ShortcutKey));
+			var target = hookActions.FirstOrDefault(x => x.CanExecute() && x.GetShortcutKey().MatchesPressed(args.ShortcutKey));
 			if (target != null && target.CanExecute())
 			{
 				args.Handled = true;

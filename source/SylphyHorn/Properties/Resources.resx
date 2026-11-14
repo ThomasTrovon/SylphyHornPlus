@@ -853,4 +853,8 @@
   <data name="Settings_Energy" xml:space="preserve"><value>Energy and screen</value></data>
   <data name="Settings_KeepScreenActiveHint" xml:space="preserve"><value>Keeps the screen on and prevents the automatic screen saver while enabled.</value></data>
   <data name="About_ForkContributions" xml:space="preserve"><value>Fork maintained by Thomas Nilton de Carvalho Vanini: Brazilian Portuguese, settings redesign, shortcut and startup fixes, WhatsApp compatibility, Keep Screen Active and regression checks.</value></data>
+  <data name="Settings_AlwaysOnTop" xml:space="preserve"><value>Keep window on top</value></data>
+  <data name="Settings_AlwaysOnTopHint" xml:space="preserve"><value>Press the shortcut to pin or unpin the active window. Disabling this feature releases its pinned windows. Set the border to 0 px to hide it.</value></data>
+  <data name="Settings_AlwaysOnTopWidth" xml:space="preserve"><value>Border thickness (0–20 px)</value></data>
+  <data name="Settings_AlwaysOnTopColor" xml:space="preserve"><value>Border color…</value></data>
 </root>

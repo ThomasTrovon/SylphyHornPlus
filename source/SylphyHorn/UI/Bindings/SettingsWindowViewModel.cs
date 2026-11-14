@@ -1120,6 +1120,17 @@ namespace SylphyHorn.UI.Bindings
 		}
 
 		[UsedImplicitly]
+        public void OpenAlwaysOnTopColorDialog()
+        {
+            using (var dialog = new FormsColorDialog { FullOpen = true })
+            {
+                if (TryGetDrawingColor(Settings.General.AlwaysOnTopBorderColor.Value, out var color)) dialog.Color = color;
+                if (dialog.ShowDialog() == FormsDialogResult.OK)
+                    Settings.General.AlwaysOnTopBorderColor.Value = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
+            }
+        }
+
+        [UsedImplicitly]
 		public void OpenTaskbarDeskbandFontColorDialog()
 		{
 			using (var dialog = new FormsColorDialog { FullOpen = true })

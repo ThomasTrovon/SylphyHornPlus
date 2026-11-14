@@ -11,7 +11,7 @@
 Keyboard and mouse shortcuts, desktop notifications, taskbar information and practical fixes for everyday multitasking.
 
 ![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4)
-![Version](https://img.shields.io/badge/version-4.4.0-blue)
+![Version](https://img.shields.io/badge/version-4.5.0-blue)
 ![Build](https://img.shields.io/badge/build-1-informational)
 ![Framework](https://img.shields.io/badge/.NET_Framework-4.8-512BD4)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -75,6 +75,12 @@ Close other SylphyHorn/SylphyHornPlus copies before running this version. To upd
 Enable the WhatsApp option in **General** if an invisible region stops accepting clicks while WhatsApp is open on another virtual desktop.
 
 A background thread identifies qualifying transparent WhatsApp windows outside the current desktop and makes them click-through. It tracks its own changes and restores them when appropriate or when disabled. It does not close WhatsApp or minimize its visible window. This addresses a specific window behavior, not every possible WhatsApp issue.
+
+### Keep window on top
+
+Enable **Keep window on top** in **General** and configure the shortcut directly below it. Press the shortcut to toggle the active window between normal and always-on-top. The default binding is Left Win + OEM7; the physical key depends on your keyboard layout, so record your preferred combination in the shortcut field.
+
+The border defaults to **blue (#0078D7), 2 px**. Choose a color and a thickness between **0 and 20 px**; **0 px** hides the border without unpinning the window. The border does not intercept clicks. Disabling the feature or exiting SylphyHornPlus releases windows pinned by this feature. Controlling elevated applications may require running SylphyHornPlus as administrator. Avoid assigning the same shortcut to another enabled action or another utility.
 
 ### Keep Screen Active
 
@@ -165,7 +171,7 @@ docs/images/                     # README screenshots
 Atalhos de teclado e mouse, notificações, informações na barra de tarefas e correções práticas para trabalhar com várias áreas.
 
 ![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4)
-![Versão](https://img.shields.io/badge/versão-4.4.0-blue)
+![Versão](https://img.shields.io/badge/versão-4.5.0-blue)
 ![Build](https://img.shields.io/badge/build-1-informational)
 ![Framework](https://img.shields.io/badge/.NET_Framework-4.8-512BD4)
 ![Licença](https://img.shields.io/badge/licença-MIT-green)
@@ -229,6 +235,12 @@ Feche outras cópias do SylphyHorn/SylphyHornPlus antes de executar esta versão
 Ative a opção do WhatsApp em **Geral** se uma região invisível deixar de aceitar cliques enquanto o WhatsApp estiver aberto em outra área virtual.
 
 Uma thread identifica janelas transparentes do WhatsApp que atendem aos critérios fora da área atual e permite que os cliques atravessem essas janelas. Ela acompanha suas próprias alterações e restaura o estado quando apropriado ou ao desativar a opção. Não fecha o WhatsApp nem minimiza sua janela visível. Trata um comportamento específico de janela, não todos os problemas possíveis do WhatsApp.
+
+### Fixar janela no topo
+
+Ative **Fixar janela no topo** em **Geral** e configure o atalho logo abaixo. Pressione o atalho para alternar a janela ativa entre normal e sempre no topo. A combinação padrão é Win esquerdo + OEM7; a tecla física depende do layout do teclado, portanto grave a combinação desejada no campo de atalho.
+
+A borda padrão é **azul (#0078D7), com 2 px**. Escolha a cor e a espessura entre **0 e 20 px**; **0 px** oculta a borda sem desafixar a janela. A borda não intercepta cliques. Desativar a função ou encerrar o SylphyHornPlus libera as janelas fixadas por ela. Controlar aplicativos elevados pode exigir executar o SylphyHornPlus como administrador. Evite atribuir o mesmo atalho a outra ação habilitada ou a outro utilitário.
 
 ### Manter Tela Ativa
 

@@ -853,4 +853,8 @@
   <data name="Settings_Energy" xml:space="preserve"><value>Energia e tela</value></data>
   <data name="Settings_KeepScreenActiveHint" xml:space="preserve"><value>Mantém a tela ligada e impede a proteção de tela automática enquanto estiver ativado.</value></data>
   <data name="About_ForkContributions" xml:space="preserve"><value>Fork mantido por Thomas Nilton de Carvalho Vanini: Português do Brasil, reorganização das configurações, correções de atalhos e inicialização, compatibilidade com WhatsApp, Manter Tela Ativa e verificações de regressão.</value></data>
+  <data name="Settings_AlwaysOnTop" xml:space="preserve"><value>Fixar janela no topo</value></data>
+  <data name="Settings_AlwaysOnTopHint" xml:space="preserve"><value>Pressione o atalho para fixar ou desafixar a janela ativa. Desativar esta função libera as janelas fixadas por ela. Use 0 px para ocultar a borda.</value></data>
+  <data name="Settings_AlwaysOnTopWidth" xml:space="preserve"><value>Espessura da borda (0–20 px)</value></data>
+  <data name="Settings_AlwaysOnTopColor" xml:space="preserve"><value>Cor da borda…</value></data>
 </root>

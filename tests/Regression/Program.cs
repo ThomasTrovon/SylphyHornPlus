@@ -38,6 +38,7 @@ internal static class Program
                 SaveLocalizedSettings(args[2], Path.GetFullPath(args[3]));
                 return 0;
             }
+            if (args.Length > 1 && args[1] == "--topmost") { TestAlwaysOnTop(); return 0; }
             if (args.Length > 1 && args[1] == "--awake")
             {
                 TestKeepScreenActive();
@@ -421,6 +422,47 @@ internal static class Program
     }
 
     // Renderiza o XAML real sem iniciar hooks, serviços ou persistir configurações do usuário.
+    private static void TestAlwaysOnTop()
+    {
+        var service = Activator.CreateInstance(T("AlwaysOnTopService"), true);
+        var window = new System.Windows.Window { Width = 360, Height = 180, Title = "SylphyHorn - teste temporário", ShowActivated = false };
+        var settings = App.GetType("SylphyHorn.Serialization.Settings").GetProperty("General").GetValue(null);
+        var width = settings.GetType().GetProperty("AlwaysOnTopBorderWidth").GetValue(settings);
+        var color = settings.GetType().GetProperty("AlwaysOnTopBorderColor").GetValue(settings);
+        Action<string, object> call = (name, arg) => service.GetType().GetMethod(name).Invoke(service, new[] { arg });
+        Func<bool> topmost = () => (TopmostStyle(new System.Windows.Interop.WindowInteropHelper(window).Handle, -20) & 8) != 0;
+        var windows = (System.Collections.IDictionary)service.GetType().GetField("windows", PrivateInstance).GetValue(service);
+        try
+        {
+            window.Show();
+            var handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+            Check((int)width.GetType().GetProperty("Value").GetValue(width) == 2, "borda padrão 2 px");
+            Check((string)color.GetType().GetProperty("Value").GetValue(color) == "#0078D7", "borda padrão azul");
+            call("Toggle", handle); Check(!topmost(), "função desativada não fixa");
+            call("SetEnabled", true); call("Toggle", handle); Check(topmost(), "fixar janela real");
+            var overlay = (System.Windows.Window)windows[handle];
+            Check(overlay != null && overlay.IsVisible, "borda criada e visível");
+            var style = TopmostStyle(new System.Windows.Interop.WindowInteropHelper(overlay).Handle, -20);
+            Check((style & 0x08000020) == 0x08000020, "borda sem foco e transparente aos cliques");
+            width.GetType().GetProperty("Value").SetValue(width, 0);
+            service.GetType().GetMethod("Refresh", PrivateInstance).Invoke(service, null);
+            Check(topmost() && !overlay.IsVisible, "0 px oculta apenas a borda");
+            width.GetType().GetProperty("Value").SetValue(width, 5);
+            color.GetType().GetProperty("Value").SetValue(color, "#FF0000");
+            service.GetType().GetMethod("Refresh", PrivateInstance).Invoke(service, null);
+            Check(overlay.IsVisible && ((System.Windows.Media.SolidColorBrush)((System.Windows.Controls.Border)overlay.Content).BorderBrush).Color.R == 255, "alteração de cor e espessura aplicada");
+            call("Toggle", handle); Check(!topmost() && windows.Count == 0, "atalho alterna para desafixar");
+            call("Toggle", handle); call("SetEnabled", false); Check(!topmost() && windows.Count == 0, "desativar restaura janelas");
+            call("SetEnabled", true); call("Toggle", handle); ((IDisposable)service).Dispose();
+            Check(!topmost(), "encerramento remove fixação própria");
+            Console.WriteLine("TOPMOST: " + Passed + " verificações aprovadas");
+        }
+        finally { ((IDisposable)service).Dispose(); window.Close(); }
+    }
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongW")]
+    private static extern int TopmostStyle(IntPtr handle, int index);
+
     private static void SaveLocalizedSettings(string culture, string path)
     {
         var application = (System.Windows.Application)Activator.CreateInstance(App.GetType("SylphyHorn.Application"), true);

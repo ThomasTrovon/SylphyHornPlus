@@ -77,6 +77,8 @@ namespace SylphyHorn.Serialization
 
 		public ShortcutkeyProperty TogglePinApp => this.Cache(key => new ShortcutkeyProperty(key, this._provider));
 
+        public ShortcutkeyProperty ToggleAlwaysOnTop => this.Cache(key => new ShortcutkeyProperty(key, this._provider, new[] { 222, 91 }));
+
 		public ShortcutkeyProperty ShowSettings => this.Cache(key => new ShortcutkeyProperty(key, this._provider));
 
 		public ShortcutkeyProperty ToggleDesktopNotification => this.Cache(key => new ShortcutkeyProperty(key, this._provider));

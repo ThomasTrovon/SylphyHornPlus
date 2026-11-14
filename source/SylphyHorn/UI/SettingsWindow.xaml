@@ -190,6 +190,26 @@
 			</Border>
 <Border Style="{DynamicResource ShortcutCardStyle}">
  <StackPanel>
+  <CheckBox x:Name="AlwaysOnTopCheckBox" IsChecked="{Binding Source={x:Static serialization:Settings.General}, Path=AlwaysOnTopEnabled.Value, Mode=TwoWay}">
+   <TextBlock Text="{Binding Source={x:Static services:ResourceService.Current}, Path=Resources.Settings_AlwaysOnTop}" TextWrapping="Wrap" />
+  </CheckBox>
+  <StackPanel Margin="20,8,0,0" IsEnabled="{Binding ElementName=AlwaysOnTopCheckBox, Path=IsChecked}">
+   <TextBlock Text="{Binding Source={x:Static services:ResourceService.Current}, Path=Resources.Settings_AlwaysOnTopHint}" TextWrapping="Wrap" Margin="0,0,0,8" />
+   <TextBlock Text="{Binding Source={x:Static services:ResourceService.Current}, Path=Resources.Settings_ShortcutKey}" />
+   <controls:ShortcutKeyBox Current="{Binding Source={x:Static serialization:Settings.ShortcutKey}, Path=ToggleAlwaysOnTop.Value, Mode=TwoWay}" HorizontalAlignment="Left" MinWidth="200" Margin="0,4,0,8" />
+   <TextBlock Text="{Binding Source={x:Static services:ResourceService.Current}, Path=Resources.Settings_AlwaysOnTopWidth}" />
+   <Slider Minimum="0" Maximum="20" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding Source={x:Static serialization:Settings.General}, Path=AlwaysOnTopBorderWidth.Value, Mode=TwoWay}" Width="220" HorizontalAlignment="Left" />
+   <TextBlock Text="{Binding Source={x:Static serialization:Settings.General}, Path=AlwaysOnTopBorderWidth.Value, StringFormat={}{0} px}" />
+   <WrapPanel Margin="0,8,0,0">
+    <metro2:CallMethodButton Content="{Binding Source={x:Static services:ResourceService.Current}, Path=Resources.Settings_AlwaysOnTopColor}" MethodTarget="{Binding}" MethodName="OpenAlwaysOnTopColorDialog" />
+    <Border Width="28" Height="22" Margin="8,0,8,0" BorderBrush="Gray" BorderThickness="1" Background="{Binding Source={x:Static serialization:Settings.General}, Path=AlwaysOnTopBorderColor.Value}" />
+    <TextBlock Text="{Binding Source={x:Static serialization:Settings.General}, Path=AlwaysOnTopBorderColor.Value}" VerticalAlignment="Center" />
+   </WrapPanel>
+  </StackPanel>
+ </StackPanel>
+</Border>
+<Border Style="{DynamicResource ShortcutCardStyle}">
+ <StackPanel>
   <TextBlock Text="{Binding Source={x:Static services:ResourceService.Current}, Path=Resources.Settings_Energy}" Style="{DynamicResource HeaderStyleKey}" />
   <CheckBox x:Name="KeepScreenActiveCheckBox" ToolTip="{Binding Source={x:Static services:ResourceService.Current}, Path=Resources.Settings_KeepScreenActiveHint}" ToolTipService.InitialShowDelay="400" ToolTipService.ShowDuration="15000" IsChecked="{Binding Source={x:Static serialization:Settings.General}, Path=KeepScreenActive.Value, Mode=TwoWay}">
    <TextBlock Text="{Binding Source={x:Static services:ResourceService.Current}, Path=Resources.Settings_KeepScreenActive}" />
