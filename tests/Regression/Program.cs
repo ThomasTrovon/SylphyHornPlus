@@ -424,6 +424,11 @@ internal static class Program
     // Renderiza o XAML real sem iniciar hooks, serviços ou persistir configurações do usuário.
     private static void TestAlwaysOnTop()
     {
+        // Isola leituras e gravações automáticas das preferências reais do usuário.
+        var providerType = App.GetType("SylphyHorn.Serialization.LocalSettingsProvider");
+        var provider = providerType.GetProperty("Instance").GetValue(null);
+        var temporarySettings = Path.Combine(Path.GetTempPath(), "sylphy-topmost-test-" + Guid.NewGuid().ToString("N") + ".xml");
+        providerType.GetField("_targetFile", PrivateInstance).SetValue(provider, new FileInfo(temporarySettings));
         var service = Activator.CreateInstance(T("AlwaysOnTopService"), true);
         var window = new System.Windows.Window { Width = 360, Height = 180, Title = "SylphyHorn - teste temporário", ShowActivated = false };
         var settings = App.GetType("SylphyHorn.Serialization.Settings").GetProperty("General").GetValue(null);
@@ -457,7 +462,7 @@ internal static class Program
             Check(!topmost(), "encerramento remove fixação própria");
             Console.WriteLine("TOPMOST: " + Passed + " verificações aprovadas");
         }
-        finally { ((IDisposable)service).Dispose(); window.Close(); }
+        finally { ((IDisposable)service).Dispose(); window.Close(); if (File.Exists(temporarySettings)) File.Delete(temporarySettings); }
     }
 
     [DllImport("user32.dll", EntryPoint = "GetWindowLongW")]
