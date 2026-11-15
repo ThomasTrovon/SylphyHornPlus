@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -26,6 +26,8 @@ namespace SylphyHorn
 #endif
 
 		private readonly LivetCompositeDisposable _compositeDisposable = new LivetCompositeDisposable();
+		private Mutex _singleInstance;
+        private bool _startupCompleted;
 
 		internal HookService HookService { get; private set; }
 
@@ -56,8 +58,17 @@ namespace SylphyHorn
 			}
 
 #if !DEBUG
-			var appInstance = new MetroTrilithon.Desktop.ApplicationInstance().AddTo(this);
-			if (appInstance.IsFirst || Args.Restarted.HasValue)
+			// ApplicationInstance from the net48 DLL uses Remoting, which .NET 11 does not load.
+			var createdNew = false;
+			try
+			{
+				this._singleInstance = new Mutex(false, @"Local\SylphyHornPlus.SingleInstance", out createdNew);
+			}
+			catch (AbandonedMutexException)
+			{
+				createdNew = true;
+			}
+			if (createdNew)
 #endif
 			{
 				if (ProductInfo.OSBuild >= 14393)
@@ -94,6 +105,8 @@ namespace SylphyHorn
 
 					var preparation = new ApplicationPreparation(this.HookService, this.Shutdown, this);
 					this.TaskTrayIcon = preparation.CreateTaskTrayIcon().AddTo(this);
+					// The icon used to wait for the virtual desktop service. If that continuation fails, the tray never appears.
+					this.TaskTrayIcon.Show();
 					this.TaskbarDeskbandService = new TaskbarDeskbandService().AddTo(this);
 
 					if (Settings.General.FirstTime)
@@ -142,15 +155,8 @@ namespace SylphyHorn
 					WallpaperService.Instance.AddTo(this);
 					ApplicationRoutingService.Instance.AddTo(this);
 
-#if !DEBUG
-					appInstance.CommandLineArgsReceived += (sender, message) =>
-					{
-						var args = new CommandLineArgs(message.CommandLineArgs);
-						if (args.Setup) this.SetupShortcut();
-					};
-#endif
-
 					base.OnStartup(e);
+                    this._startupCompleted = true;
 				}
 				else
 				{
@@ -161,7 +167,6 @@ namespace SylphyHorn
 #if !DEBUG
 			else
 			{
-				appInstance.SendCommandLineArgs(e.Args);
 				this.Shutdown();
 			}
 #endif
@@ -210,7 +215,12 @@ namespace SylphyHorn
 		private void HandleDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs args)
 		{
 			LoggingService.Instance.Register(args.Exception);
+			System.IO.File.AppendAllText(
+				System.IO.Path.Combine(System.IO.Path.GetTempPath(), "sylphyhorn-startup.txt"),
+				args.Exception + System.Environment.NewLine);
 			args.Handled = true;
+            // A failed startup must not leave a headless process holding the single-instance lock.
+            if (!this._startupCompleted) this.Shutdown(-1);
 		}
 
 		private bool WaitUntilExplorerStarts()
@@ -266,6 +276,14 @@ namespace SylphyHorn
 		void IDisposable.Dispose()
 		{
 			this._compositeDisposable.Dispose();
+			this.ReleaseSingleInstance();
+		}
+
+		internal void ReleaseSingleInstance()
+		{
+			var mutex = this._singleInstance;
+			this._singleInstance = null;
+			mutex?.Dispose();
 		}
 
 		#endregion

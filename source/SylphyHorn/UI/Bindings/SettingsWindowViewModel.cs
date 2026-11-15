@@ -727,6 +727,7 @@ namespace SylphyHorn.UI.Bindings
 				{
 					this._NotificationBackgroundColor = value;
 
+					this.RefreshNotificationBackground();
 					this.RaisePropertyChanged();
 					this.RaisePropertyChanged(nameof(this.NotificationBackground));
 				}
@@ -735,8 +736,32 @@ namespace SylphyHorn.UI.Bindings
 
 		#endregion
 
-		public Brush NotificationBackground => new SolidColorBrush(this.NotificationBackgroundColor)
-		{ Opacity = WindowsTheme.Transparency.Current ? 0.8 : 1.0 };
+		private SolidColorBrush _notificationBackground = FrozenBrush(Colors.Transparent, 1);
+
+		public Brush NotificationBackground => this._notificationBackground;
+
+		private void RefreshNotificationBackground()
+		{
+			this._notificationBackground = FrozenBrush(
+				this.NotificationBackgroundColor,
+				WindowsTheme.Transparency.Current ? 0.8 : 1.0);
+		}
+
+		private void RefreshTaskbarBackground()
+		{
+			var color = WindowsTheme.ColorPrevalence.Current
+				? ImmersiveColor.GetColorByTypeName(ImmersiveColorNames.SystemAccentDark1)
+				: ImmersiveColor.GetColorByTypeName(ImmersiveColorNames.DarkChromeMedium);
+			this._taskbarBackground = FrozenBrush(color, WindowsTheme.Transparency.Current ? 0.8 : 1.0);
+			this.RaisePropertyChanged(nameof(this.TaskbarBackground));
+		}
+
+		private static SolidColorBrush FrozenBrush(Color color, double opacity)
+		{
+			var brush = new SolidColorBrush(color) { Opacity = opacity };
+			brush.Freeze();
+			return brush;
+		}
 
 		#region NotificationForegroundColor notification property
 
@@ -751,6 +776,7 @@ namespace SylphyHorn.UI.Bindings
 				{
 					this._NotificationForegroundColor = value;
 
+					this._notificationForeground = FrozenBrush(value, 1);
 					this.RaisePropertyChanged();
 					this.RaisePropertyChanged(nameof(this.NotificationForeground));
 				}
@@ -759,12 +785,13 @@ namespace SylphyHorn.UI.Bindings
 
 		#endregion
 
-		public Brush NotificationForeground => new SolidColorBrush(this.NotificationForegroundColor);
+		private SolidColorBrush _notificationForeground = FrozenBrush(Colors.Transparent, 1);
 
-		public Brush TaskbarBackground => new SolidColorBrush(WindowsTheme.ColorPrevalence.Current
-			? ImmersiveColor.GetColorByTypeName(ImmersiveColorNames.SystemAccentDark1)
-			: ImmersiveColor.GetColorByTypeName(ImmersiveColorNames.DarkChromeMedium))
-		{ Opacity = WindowsTheme.Transparency.Current ? 0.8 : 1.0 };
+		public Brush NotificationForeground => this._notificationForeground;
+
+		private SolidColorBrush _taskbarBackground = FrozenBrush(Colors.Transparent, 1);
+
+		public Brush TaskbarBackground => this._taskbarBackground;
 
 		public bool IsShortcutKeyOfSwitchToIndicesLarger => Settings.ShortcutKey.SwitchToIndices.Count > Desktops.Length;
 
@@ -796,6 +823,10 @@ namespace SylphyHorn.UI.Bindings
 
 			this._startup = new Startup();
 			this._startupScheduler = new StartupScheduler();
+			// Cached brushes need their persisted values before the first binding evaluation.
+			this.RefreshNotificationBackground();
+			this.RefreshTaskbarBackground();
+			this.RefreshTaskbarDeskbandFontBrush();
 
 			this.Cultures = new[] { new DisplayViewModel<string> { Display = Resources.Common_Automatic, } }
 				.Concat(ResourceService.Current.SupportedCultures
@@ -1089,13 +1120,18 @@ namespace SylphyHorn.UI.Bindings
 				.RegisterListener(_ => this.UpdateNotificationColor(this.NotificationWindowStyle))
 				.AddTo(this);
 			WindowsTheme.ColorPrevalence
-				.RegisterListener(_ => this.RaisePropertyChanged(nameof(this.TaskbarBackground)))
+				.RegisterListener(_ => this.RefreshTaskbarBackground())
 				.AddTo(this);
 			WindowsTheme.Transparency
-				.RegisterListener(_ => this.UpdateNotificationColor(this.NotificationWindowStyle))
+				.RegisterListener(_ =>
+				{
+					this.UpdateNotificationColor(this.NotificationWindowStyle);
+					this.RefreshNotificationBackground();
+					this.RaisePropertyChanged(nameof(this.NotificationBackground));
+				})
 				.AddTo(this);
 			WindowsTheme.Transparency
-				.RegisterListener(_ => this.RaisePropertyChanged(nameof(this.TaskbarBackground)))
+				.RegisterListener(_ => this.RefreshTaskbarBackground())
 				.AddTo(this);
 
 			Disposable.Create(() => LocalSettingsProvider.Instance.SaveAsync().Wait())
@@ -1155,6 +1191,7 @@ namespace SylphyHorn.UI.Bindings
 				if (Settings.General.TaskbarDeskbandFontColor.Value != value)
 				{
 					Settings.General.TaskbarDeskbandFontColor.Value = value;
+					this.RefreshTaskbarDeskbandFontBrush();
 					this.RaisePropertyChanged();
 					this.RaisePropertyChanged(nameof(this.TaskbarDeskbandFontColorBrush));
 				}
@@ -1175,17 +1212,18 @@ namespace SylphyHorn.UI.Bindings
 			}
 		}
 
-		public Brush TaskbarDeskbandFontColorBrush
-		{
-			get
-			{
-				if (!TryGetDrawingColor(this.TaskbarDeskbandFontColor, out var color))
-				{
-					color = System.Drawing.ColorTranslator.FromHtml(GeneralSettings.TaskbarDeskbandFontColorDefaultValue);
-				}
+		private SolidColorBrush _taskbarDeskbandFontColorBrush = FrozenBrush(Colors.White, 1);
 
-				return new SolidColorBrush(Color.FromRgb(color.R, color.G, color.B));
+		public Brush TaskbarDeskbandFontColorBrush => this._taskbarDeskbandFontColorBrush;
+
+		private void RefreshTaskbarDeskbandFontBrush()
+		{
+			if (!TryGetDrawingColor(this.TaskbarDeskbandFontColor, out var color))
+			{
+				color = System.Drawing.ColorTranslator.FromHtml(GeneralSettings.TaskbarDeskbandFontColorDefaultValue);
 			}
+
+			this._taskbarDeskbandFontColorBrush = FrozenBrush(Color.FromRgb(color.R, color.G, color.B), 1);
 		}
 
 		public int TaskbarDeskbandPositionOffset

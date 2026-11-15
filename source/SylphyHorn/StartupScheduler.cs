@@ -24,7 +24,8 @@ namespace SylphyHorn
 		public bool IsAdministrator => _principal.IsInRole(WindowsBuiltInRole.Administrator);
 
 		public StartupScheduler()
-			: this(Assembly.GetExecutingAssembly().Location)
+			// Modern .NET's assembly location is a DLL; Task Scheduler must launch the apphost.
+			: this(Path.ChangeExtension(typeof(StartupScheduler).Assembly.Location, ".exe"))
 		{
 		}
 

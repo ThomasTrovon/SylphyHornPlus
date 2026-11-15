@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;net48</TargetFrameworks>
+    <TargetFramework>net11.0-windows10.0.26100.0</TargetFramework>
     <RootNamespace>SylphyHorn</RootNamespace>
 
     <Title>SylphyHorn.Core</Title>
@@ -40,7 +40,7 @@
 
   <ItemGroup>
     <Reference Include="MetroTrilithon">
-      <HintPath>..\libraries\MetroTrilithon.Desktop\$(TargetFramework)\MetroTrilithon.dll</HintPath>
+      <HintPath>..\libraries\MetroTrilithon.Desktop\net48\MetroTrilithon.dll</HintPath>
     </Reference>
   </ItemGroup>
 

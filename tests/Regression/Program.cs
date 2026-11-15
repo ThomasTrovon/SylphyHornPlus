@@ -16,6 +16,7 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        string isolatedSettings = null;
         try
         {
             var executable = Path.GetFullPath(args[0]);
@@ -29,10 +30,20 @@ internal static class Program
                     var satellite = Path.Combine(folder, identity.CultureName, name);
                     return File.Exists(satellite) ? Assembly.LoadFrom(satellite) : null;
                 }
-                var path = Path.Combine(folder, "lib", name);
+                var path = Path.Combine(folder, name);
+                if (!File.Exists(path)) path = Path.Combine(folder, "lib", name);
                 return File.Exists(path) ? Assembly.LoadFrom(path) : null;
             };
             App = Assembly.LoadFrom(executable);
+            if (args.Length == 1)
+            {
+                // Regression checks must never persist values into the user's profile.
+                var providerType = App.GetType("SylphyHorn.Serialization.LocalSettingsProvider");
+                var provider = providerType.GetProperty("Instance").GetValue(null);
+                isolatedSettings = Path.Combine(Path.GetTempPath(), "sylphy-regression-" + Guid.NewGuid().ToString("N") + ".xml");
+                providerType.GetField("_targetFile", PrivateInstance).SetValue(provider, new FileInfo(isolatedSettings));
+            }
+            if (args.Length > 1 && args[1] == "--modern") { TestModernCompatibility(); return 0; }
             if (args.Length > 1 && args[1] == "--screenshot")
             {
                 SaveLocalizedSettings(args[2], Path.GetFullPath(args[3]));
@@ -62,11 +73,171 @@ internal static class Program
             TestProcessNames();
             TestPortugueseResources();
             TestSettingsCheckbox();
+            TestHookRelease();
+            TestSingleInstanceRelease();
+            var schedulerType = App.GetType("SylphyHorn.StartupScheduler", true);
+            var scheduler = Activator.CreateInstance(schedulerType);
+            Check((string)schedulerType.GetField("_appPath", PrivateInstance).GetValue(scheduler) == Path.ChangeExtension(App.Location, ".exe"), "startup task launches the apphost rather than the managed DLL");
             Console.WriteLine("PASS: " + Passed + " verificações de regressão.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+        finally { if (isolatedSettings != null && File.Exists(isolatedSettings)) File.Delete(isolatedSettings); }
     }
+    private static void TestModernCompatibility()
+    {
+        var principal = new System.Security.Principal.WindowsPrincipal(System.Security.Principal.WindowsIdentity.GetCurrent());
+        Console.WriteLine("Runner elevated: " + principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator));
+        // A real SylphyHorn.Application queues OnStartup on the dispatcher. If the installed app
+        // is running, its single-instance guard shuts this runner down and destroys the probe HWND.
+        // Only WPF infrastructure is needed here; never start the product's hooks or settings lifecycle.
+        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(App.GetType("SylphyHorn.Application", true).TypeHandle);
+        var application = new System.Windows.Application { ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown };
+        var theme = Assembly.Load("MetroRadiance").GetType("MetroRadiance.UI.ThemeService");
+        Check(theme.GetProperty("Current").GetValue(null) != null, "MetroRadiance theme initializes on .NET 11");
+        var templateType = App.GetType("System.UriTemplate", true);
+        var template = Activator.CreateInstance(templateType, new object[] { "Themes/{theme}.xaml" });
+        var baseUri = new Uri("pack://application:,,,/MetroRadiance;component/");
+        var light = new Uri(baseUri, "Themes/Light.xaml");
+        Check(templateType.GetMethod("Match").Invoke(template, new object[] { baseUri, light }) != null, "resource variable with suffix matches");
+        Check(templateType.GetMethod("Match").Invoke(template, new object[] { baseUri, new Uri(baseUri, "Other/Light.xaml") }) == null, "unrelated resource does not match");
+        var bound = (Uri)templateType.GetMethod("BindByName").Invoke(template, new object[] { baseUri, new Dictionary<string, string> { ["theme"] = "Dark" } });
+        Check(bound == new Uri(baseUri, "Themes/Dark.xaml"), "resource path binding");
+        var desktopAssembly = Assembly.Load("VirtualDesktop");
+        var marshalerType = desktopAssembly.GetType("WindowsDesktop.Interop.HStringMarshaler", true);
+        var marshaler = (ICustomMarshaler)marshalerType.GetMethod("GetInstance").Invoke(null, new object[] { "" });
+        var handle = marshaler.MarshalManagedToNative("Área de trabalho 🖥");
+        try { Check((string)marshaler.MarshalNativeToManaged(handle) == "Área de trabalho 🖥", "HSTRING Unicode round trip"); }
+        finally { marshaler.CleanUpNativeData(handle); }
+        var vd = desktopAssembly.GetType("WindowsDesktop.VirtualDesktop", true);
+        System.Threading.SynchronizationContext.SetSynchronizationContext(new System.Windows.Threading.DispatcherSynchronizationContext());
+        var provider = Activator.CreateInstance(desktopAssembly.GetType("WindowsDesktop.VirtualDesktopProvider"));
+        using var providerLifetime = (IDisposable)provider;
+        vd.GetProperty("Provider").SetValue(null, provider);
+        var initialization = (System.Threading.Tasks.Task)provider.GetType().GetMethod("Initialize", Type.EmptyTypes).Invoke(provider, null);
+        while (!initialization.IsCompleted)
+            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => { }));
+        initialization.GetAwaiter().GetResult();
+        var desktops = (Array)vd.GetProperty("AllDesktops").GetValue(null);
+        Check(desktops.Length > 0, "enumerate real Windows desktops");
+        foreach (var desktop in desktops)
+        {
+            var name = vd.GetProperty("Name").GetValue(desktop);
+            Check(name == null || name is string, "read desktop name through COM (empty names allowed)");
+            var wallpaper = vd.GetProperty("WallpaperPath").GetValue(desktop);
+            Check(wallpaper == null || wallpaper is string, "read wallpaper through COM (default wallpaper allowed)");
+        }
+        var testWindow = new System.Windows.Window { Title = "SylphyHorn COM compatibility test", Width = 320, Height = 160, ShowActivated = false };
+        try
+        {
+            testWindow.Show();
+            Pump(testWindow);
+            var windowHandle = new System.Windows.Interop.WindowInteropHelper(testWindow).Handle;
+            Check(windowHandle != IntPtr.Zero && IsWindowVisible(windowHandle), "probe has a live visible native window before COM lookup");
+            // Run in the interactive user's session and wait briefly for the shell to register this disposable window.
+            // TYPE_E_ELEMENTNOTFOUND alone does not establish the cause (integrity, registration delay, or shell state).
+            var deadline = DateTime.UtcNow.AddSeconds(3);
+            while (true)
+            {
+                try { vd.GetMethod("PinWindow").Invoke(null, new object[] { windowHandle }); break; }
+                catch (TargetInvocationException ex) when (ex.InnerException is COMException com && com.HResult == unchecked((int)0x8002802B) && DateTime.UtcNow < deadline)
+                { Pump(testWindow); System.Threading.Thread.Sleep(25); }
+            }
+            Check((bool)vd.GetMethod("IsPinnedWindow").Invoke(null, new object[] { windowHandle }), "pin test window through IApplicationView");
+            vd.GetMethod("UnpinWindow").Invoke(null, new object[] { windowHandle });
+            Check(!(bool)vd.GetMethod("IsPinnedWindow").Invoke(null, new object[] { windowHandle }), "unpin test window through IApplicationView");
+        }
+        finally { testWindow.Close(); }
+        var current = vd.GetProperty("Current").GetValue(null);
+        var originalName = vd.GetProperty("Name").GetValue(current) as string;
+        var probe = (originalName ?? "") + " ·probe";
+        var renamed = new System.Threading.ManualResetEventSlim(false);
+        var renamedEvent = vd.GetEvent("Renamed");
+        var handler = CreateRenameHandler(renamedEvent.EventHandlerType, value => { if (value == probe) renamed.Set(); });
+        renamedEvent.AddEventHandler(null, handler);
+        try
+        {
+            vd.GetProperty("Name").SetValue(current, probe);
+            var wait = DateTime.UtcNow.AddSeconds(3);
+            while (!renamed.IsSet && DateTime.UtcNow < wait)
+            {
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => { }));
+                System.Threading.Thread.Sleep(25);
+            }
+            Check(renamed.IsSet, "rename notification returns the written desktop name");
+            Check((vd.GetProperty("Name").GetValue(current) as string) == probe, "desktop name cache follows the notification");
+            var wallpaper = vd.GetProperty("WallpaperPath").GetValue(current) as string;
+            if (!string.IsNullOrEmpty(wallpaper))
+            {
+                vd.GetProperty("WallpaperPath").SetValue(current, wallpaper);
+                Check((vd.GetProperty("WallpaperPath").GetValue(current) as string) == wallpaper, "rewriting the current wallpaper keeps the same path");
+            }
+        }
+        finally
+        {
+            vd.GetProperty("Name").SetValue(current, originalName ?? "");
+            renamedEvent.RemoveEventHandler(null, handler);
+            renamed.Dispose();
+        }
+        Console.WriteLine("MODERN: " + Passed + " checks passed");
+    }
+
+    private static Delegate CreateRenameHandler(Type handlerType, Action<string> accept)
+    {
+        var invoke = handlerType.GetMethod("Invoke");
+        var sender = System.Linq.Expressions.Expression.Parameter(typeof(object), "sender");
+        var args = System.Linq.Expressions.Expression.Parameter(invoke.GetParameters()[1].ParameterType, "args");
+        var name = System.Linq.Expressions.Expression.Property(args, "NewName");
+        var call = System.Linq.Expressions.Expression.Call(System.Linq.Expressions.Expression.Constant(accept), typeof(Action<string>).GetMethod("Invoke"), name);
+        return System.Linq.Expressions.Expression.Lambda(handlerType, call, sender, args).Compile();
+    }
+
+    private static void TestHookRelease()
+    {
+        var interceptorType = App.GetType("SylphyHorn.Services.KeyboardInterceptor", true);
+        var interceptor = Activator.CreateInstance(interceptorType);
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        try
+        {
+            interceptorType.GetMethod("StartCapturing").Invoke(interceptor, null);
+            interceptorType.GetMethod("StopCapturing").Invoke(interceptor, null);
+            Check(interceptorType.GetField("_callback", flags).GetValue(interceptor) == null, "successful unhook drops the keyboard delegate");
+            interceptorType.GetMethod("StartCapturing").Invoke(interceptor, null);
+            var handle = interceptorType.GetField("_handle", flags).GetValue(interceptor);
+            interceptorType.GetField("_handle", flags).SetValue(interceptor, new IntPtr(1));
+            interceptorType.GetMethod("StopCapturing").Invoke(interceptor, null);
+            Check(interceptorType.GetField("_callback", flags).GetValue(interceptor) != null, "failed unhook keeps the keyboard delegate");
+            interceptorType.GetField("_handle", flags).SetValue(interceptor, handle);
+        }
+        finally
+        {
+            interceptorType.GetMethod("StopCapturing").Invoke(interceptor, null);
+        }
+    }
+
+    private static void TestSingleInstanceRelease()
+    {
+        var appType = App.GetType("SylphyHorn.Application", true);
+        var app = appType.GetProperty("Current").GetValue(null) ?? Activator.CreateInstance(appType, true);
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var name = @"Local\SylphyHornPlus.SingleInstance.Probe";
+        var held = new System.Threading.Mutex(false, name, out var created);
+        Check(created, "probe mutex created");
+        try
+        {
+            appType.GetField("_singleInstance", flags).SetValue(app, held);
+            using (var blocked = new System.Threading.Mutex(false, name, out var availableWhileHeld))
+                Check(!availableWhileHeld, "second instance sees the held mutex");
+            appType.GetMethod("ReleaseSingleInstance", flags).Invoke(app, null);
+            using (var released = new System.Threading.Mutex(false, name, out var availableAfterRelease))
+                Check(availableAfterRelease, "restart releases the mutex before the new process starts");
+        }
+        finally
+        {
+            appType.GetMethod("ReleaseSingleInstance", flags).Invoke(app, null);
+        }
+    }
+
     private static void TestPortugueseResources()
     {
         var resources = App.GetType("SylphyHorn.Properties.Resources", true);
@@ -103,6 +274,7 @@ internal static class Program
         => detector.GetType().GetMethod("InterceptorOnKeyDown", PrivateInstance)
             .Invoke(detector, new object[] { null, new KeyEventArgs(key) });
 
+    [DllImport("user32.dll")] private static extern bool IsWindowVisible(IntPtr window);
     [DllImport("user32.dll")] private static extern int GetWindowLong(IntPtr window, int index);
     [DllImport("user32.dll")] private static extern int SetWindowLong(IntPtr window, int index, int value);
 

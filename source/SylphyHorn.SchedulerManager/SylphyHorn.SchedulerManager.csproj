@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net472;net48</TargetFrameworks>
+    <TargetFramework>net11.0-windows10.0.26100.0</TargetFramework>
     <RootNamespace>SylphyHorn</RootNamespace>
     <AssemblyName>SchedulerManager</AssemblyName>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
-  <ItemGroup><Reference Include="Microsoft.CSharp" /></ItemGroup>
+  <ItemGroup></ItemGroup>
 </Project>

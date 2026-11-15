@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MetroTrilithon.Linq;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility;
 using SylphyHorn.Interop;
 using SylphyHorn.Properties;
 
@@ -22,9 +23,25 @@ namespace SylphyHorn
 
 		static Application()
 		{
+			// MetroRadiance still asks for the .NET Framework System.ServiceModel assembly.
+			AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
+			{
+				if (args.Name.StartsWith("System.ServiceModel,", StringComparison.Ordinal))
+				{
+					return typeof(Application).Assembly;
+				}
+				return null;
+			};
 			AppDomain.CurrentDomain.UnhandledException += HandleUnhandledException;
 
-			TelemetryClient = new TelemetryClient();
+			// Application Insights 3 builds an Azure Monitor exporter and throws when no connection string exists.
+			// This fork does not ship one. Telemetry stays off.
+			var telemetry = new TelemetryConfiguration
+			{
+				ConnectionString = "InstrumentationKey=00000000-0000-0000-0000-000000000000",
+				DisableTelemetry = true,
+			};
+			TelemetryClient = new TelemetryClient(telemetry);
 			TelemetryClient.Context.Session.Id = Guid.NewGuid().ToString();
 			TelemetryClient.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
 			TelemetryClient.Context.Component.Version = ProductInfo.VersionString;
@@ -52,6 +69,8 @@ namespace SylphyHorn
 		private static void Restart()
 		{
 			var startupScheduler = new StartupScheduler();
+			// The replacement starts before this process exits. Drop the mutex first or the new process sees the lock and quits.
+			(Current as Application)?.ReleaseSingleInstance();
 			if (startupScheduler.IsRunning)
 			{
 				startupScheduler.Restart();
@@ -63,7 +82,7 @@ namespace SylphyHorn
 				var restartCount = Args.Restarted ?? 0;
 
 				Process.Start(
-					Environment.GetCommandLineArgs()[0],
+					Environment.ProcessPath,
 					Args.Options
 						.Where(x => x.Key != Args.GetKey(nameof(CommandLineArgs.Restarted)))
 						.Concat(EnumerableEx.Return(Args.CreateOption(nameof(CommandLineArgs.Restarted), (restartCount + 1).ToString())))

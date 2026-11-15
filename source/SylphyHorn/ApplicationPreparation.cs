@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -199,7 +199,7 @@ namespace SylphyHorn
 
 		private void StartElevatedHelper()
 		{
-			var executablePath = Environment.GetCommandLineArgs()[0];
+			var executablePath = Environment.ProcessPath;
 			var arguments = string.Join(" ", new[]
 			{
 				Application.Args.CreateOption(nameof(CommandLineArgs.ElevatedHelper), null).ToString(),
@@ -245,7 +245,7 @@ namespace SylphyHorn
 
 		private void StartDelayedApplication(bool elevated)
 		{
-			var executablePath = Environment.GetCommandLineArgs()[0];
+			var executablePath = Environment.ProcessPath;
 			var arguments = GetCommandLineArguments();
 			var command = $"timeout /t 1 /nobreak > nul & start \"\" \"{executablePath}\" {arguments}";
 			var startInfo = new System.Diagnostics.ProcessStartInfo("cmd.exe", "/c " + command)
@@ -281,7 +281,7 @@ namespace SylphyHorn
 		{
 			var provider = new VirtualDesktopProvider()
 			{
-				ComInterfaceAssemblyPath = Path.Combine(Directories.LocalAppData.FullName, "assemblies"),
+				ComInterfaceAssemblyPath = Path.Combine(Directories.LocalAppData.FullName, "assemblies-net11"),
 			};
 
 			VirtualDesktop.Provider = provider;
@@ -289,6 +289,8 @@ namespace SylphyHorn
 
 			void Continue(Task t)
 			{
+				try
+				{
 				switch (t.Status)
 				{
 					case TaskStatus.RanToCompletion:
@@ -306,6 +308,15 @@ namespace SylphyHorn
 						var autoRestart = VirtualDesktop.Provider.TryDeleteAssembly();
 						this.VirtualDesktopInitializationFailed?.Invoke(t.Exception, autoRestart);
 						break;
+				}
+				}
+				catch (Exception ex)
+				{
+					// Surface asynchronous desktop initialization failures instead of leaving a partially initialized app.
+					System.IO.File.WriteAllText(
+						System.IO.Path.Combine(System.IO.Path.GetTempPath(), "sylphyhorn-startup.txt"),
+						ex.ToString());
+					this.VirtualDesktopInitializationFailed?.Invoke(ex, false);
 				}
 			}
 		}

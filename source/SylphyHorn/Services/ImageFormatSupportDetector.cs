@@ -9,7 +9,9 @@ namespace SylphyHorn.Services
 {
 	public sealed class JpegXrSupportDetector : ClsidImageFormatSupportDetector
 	{
-		public override string[] Extensions => new string[] { ".wdp", ".jxr" };
+		private static readonly string[] JpegXrExtensions = { ".wdp", ".jxr" };
+
+		public override string[] Extensions => JpegXrExtensions;
 
 		public override string FileType => "JPEG XR";
 
@@ -18,7 +20,9 @@ namespace SylphyHorn.Services
 
 	public sealed class WebPSupportDetector : ClsidImageFormatSupportDetector
 	{
-		public override string[] Extensions => new string[] { ".webp" };
+		private static readonly string[] WebPExtensions = { ".webp" };
+
+		public override string[] Extensions => WebPExtensions;
 
 		public override string FileType => "WebP";
 
@@ -119,10 +123,13 @@ namespace SylphyHorn.Services
 			}
 		}
 
+		private string[] _extensions;
+
 		public override string[] Extensions
 		{
 			get
 			{
+				if (this._extensions != null) return this._extensions;
 				var extensions = new Collection<string>();
 				if (this.IsHifExtensionSupported)
 				{
@@ -142,7 +149,8 @@ namespace SylphyHorn.Services
 					extensions.Add(".avif");
 					extensions.Add(".avifs");
 				}
-				return extensions.ToArray();
+				this._extensions = extensions.ToArray();
+				return this._extensions;
 			}
 		}
 

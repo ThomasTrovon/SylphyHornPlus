@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;net48</TargetFrameworks>
+    <TargetFramework>net11.0-windows10.0.26100.0</TargetFramework>
     <OutputType>WinExe</OutputType>
     <Title>SylphyHornPlus</Title>
     <Product>SylphyHornPlus</Product>
-    <Version>4.5.1</Version>
+    <Version>4.6.0</Version>
     <Authors>Asteski; Thomas Nilton de Carvalho Vanini</Authors>
     <Company>Asteski</Company>
     <Copyright>Copyright © 2015 - 2018 Manato KAMEYA, 2021 - 2022 hwtnb, 2026 Asteski, 2026 Thomas Nilton de Carvalho Vanini</Copyright>
     <Description>Virtual Desktop Tools for Windows 11 and 10</Description>
     <AssemblyTitle>SylphyHornPlus</AssemblyTitle>
-    <AssemblyVersion>4.5.1.3</AssemblyVersion>
+    <AssemblyVersion>4.6.0.4</AssemblyVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
@@ -28,88 +28,75 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <PlatformTarget>x64</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <PlatformTarget>x86</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <PlatformTarget>x64</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <PlatformTarget>x86</PlatformTarget>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release %28AppX%29|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DefineConstants>TRACE;APPX</DefineConstants>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release %28AppX%29|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <DefineConstants>TRACE;APPX</DefineConstants>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release %28AppX%29|x86'">
     <PlatformTarget>x86</PlatformTarget>
     <DefineConstants>TRACE;APPX</DefineConstants>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug %28AppX%29|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DefineConstants>TRACE;DEBUG;APPX</DefineConstants>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug %28AppX%29|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <DefineConstants>TRACE;DEBUG;APPX</DefineConstants>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug %28AppX%29|x86'">
     <PlatformTarget>x86</PlatformTarget>
     <DefineConstants>TRACE;DEBUG;APPX</DefineConstants>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="MetroRadiance">
-      <HintPath>..\libraries\MetroTrilithon.Desktop\$(TargetFramework)\MetroRadiance.dll</HintPath>
+      <HintPath>..\libraries\MetroTrilithon.Desktop\net48\MetroRadiance.dll</HintPath>
     </Reference>
     <Reference Include="MetroRadiance.Chrome">
-      <HintPath>..\libraries\MetroTrilithon.Desktop\$(TargetFramework)\MetroRadiance.Chrome.dll</HintPath>
+      <HintPath>..\libraries\MetroTrilithon.Desktop\net48\MetroRadiance.Chrome.dll</HintPath>
     </Reference>
     <Reference Include="MetroRadiance.Core">
-      <HintPath>..\libraries\MetroTrilithon.Desktop\$(TargetFramework)\MetroRadiance.Core.dll</HintPath>
+      <HintPath>..\libraries\MetroTrilithon.Desktop\net48\MetroRadiance.Core.dll</HintPath>
     </Reference>
     <Reference Include="MetroTrilithon">
-      <HintPath>..\libraries\MetroTrilithon.Desktop\$(TargetFramework)\MetroTrilithon.dll</HintPath>
+      <HintPath>..\libraries\MetroTrilithon.Desktop\net48\MetroTrilithon.dll</HintPath>
     </Reference>
     <Reference Include="MetroTrilithon.Desktop">
-      <HintPath>..\libraries\MetroTrilithon.Desktop\$(TargetFramework)\MetroTrilithon.Desktop.dll</HintPath>
+      <HintPath>..\libraries\MetroTrilithon.Desktop\net48\MetroTrilithon.Desktop.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime" />
   </ItemGroup>
 
   <ItemGroup>
@@ -147,7 +134,6 @@
     <EmbeddedResource Include=".licenses\MetroTrilithon.txt" />
     <EmbeddedResource Include=".licenses\MetroRadiance.txt" />
     <EmbeddedResource Include=".licenses\Livet.txt" />
-    <EmbeddedResource Include=".licenses\Open.WinKeyboardHook.txt" />
     <EmbeddedResource Include=".licenses\VirtualDesktop.txt" />
   </ItemGroup>
 
@@ -201,7 +187,7 @@
       <Version>1.3.5</Version>
     </PackageReference>
     <PackageReference Include="JetBrains.Annotations">
-      <Version>2024.3.0</Version>
+      <Version>2026.2.0</Version>
     </PackageReference>
     <PackageReference Include="LivetCask">
       <Version>4.0.2</Version>
@@ -210,23 +196,12 @@
       <Version>4.0.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.ApplicationInsights">
-      <Version>2.22.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts">
-      <Version>10.0.26100.1742</Version>
+      <Version>3.2.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf">
-      <Version>1.1.135</Version>
+      <Version>1.1.161</Version>
     </PackageReference>
-    <PackageReference Include="Open.WinKeyboardHook">
-      <Version>1.0.14</Version>
-    </PackageReference>
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource">
-      <Version>9.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Management" Version="9.0.0" />
+    <PackageReference Include="System.Management" Version="11.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -261,19 +236,15 @@
   </ItemGroup>
 
   <!-- Always ship the helper with the application, including standalone project builds. -->
-  <Target Name="CopySchedulerManager" BeforeTargets="PostBuild">
-    <MSBuild Projects="$(MSBuildProjectDirectory)\..\SylphyHorn.SchedulerManager\SylphyHorn.SchedulerManager.csproj" Targets="GetTargetPath" Properties="Configuration=$(Configuration);TargetFramework=$(TargetFramework)">
-      <Output TaskParameter="TargetOutputs" ItemName="SchedulerBinary" />
-    </MSBuild>
+  <!-- Modern .NET resolves dependencies from deps.json; retain the standard output layout. -->
+  <Target Name="CopySchedulerManager" AfterTargets="Build">
     <ItemGroup>
-      <SchedulerFiles Include="@(SchedulerBinary)" />
-      <SchedulerFiles Include="@(SchedulerBinary -> '%(FullPath).config')" />
+      <SchedulerFiles Include="$(MSBuildProjectDirectory)/../SylphyHorn.SchedulerManager/bin/$(Configuration)/$(TargetFramework)/SchedulerManager.*" />
     </ItemGroup>
     <Copy SourceFiles="@(SchedulerFiles)" DestinationFolder="$(TargetDir)" />
-    <Error Condition="!Exists('$(TargetDir)SchedulerManager.exe')" Text="SchedulerManager.exe ausente na distribuição." />
   </Target>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="powershell -ExecutionPolicy RemoteSigned -File &quot;$(ProjectDir).build\post-build.ps1&quot; &quot;$(TargetDir)" />
+  <!-- Some helper files also flow through ProjectReference. Copy the complete set without duplicate publish items. -->
+  <Target Name="PublishSchedulerManager" AfterTargets="Publish" DependsOnTargets="CopySchedulerManager">
+    <Copy SourceFiles="@(SchedulerFiles)" DestinationFolder="$(PublishDir)" />
   </Target>
-
 </Project>

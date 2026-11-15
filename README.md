@@ -10,10 +10,10 @@
 
 Keyboard and mouse shortcuts, desktop notifications, taskbar information and practical fixes for everyday multitasking.
 
-![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4)
-![Version](https://img.shields.io/badge/version-4.5.1-blue)
-![Build](https://img.shields.io/badge/build-1-informational)
-![Framework](https://img.shields.io/badge/.NET_Framework-4.8-512BD4)
+![Windows](https://img.shields.io/badge/Windows-11-0078D4)
+![Version](https://img.shields.io/badge/version-4.6.0-blue)
+![Build](https://img.shields.io/badge/build-4-informational)
+![Framework](https://img.shields.io/badge/.NET-11-512BD4)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 [![Download](https://img.shields.io/badge/Download-Releases-2ea44f?style=for-the-badge&logo=github)](https://github.com/ThomasTrovon/SylphyHornPlus/releases)
@@ -52,8 +52,8 @@ This independent fork extends [Asteski/SylphyHornPlus](https://github.com/Astesk
 
 | Requirement | Details |
 |---|---|
-| Operating system | Windows 10 or 11; upstream minimum is Windows 10 build 14393 |
-| Runtime for this package | .NET Framework 4.8 |
+| Operating system | Windows 11; this release targets build 26100 and was tested on build 26300. Earlier Windows versions are not validated |
+| Runtime for this package | .NET Desktop Runtime 11 (x64 for the supplied package) |
 | Distribution | Portable folder; extract the entire archive |
 | Administrator access | Optional for normal use; required to register elevated startup |
 | Validation | Release build and regression checks on Windows 11; not validated on every Windows build or ARM |
@@ -64,7 +64,7 @@ Virtual desktop integration uses Windows interfaces that can change between OS r
 
 1. Download the package from this fork's [Releases](https://github.com/ThomasTrovon/SylphyHornPlus/releases).
 2. Extract the complete folder to a permanent location.
-3. Run `SylphyHorn.exe`, keeping `lib`, language folders and `SchedulerManager.exe` alongside it.
+3. Run `SylphyHorn.exe`, keeping all DLLs, `.deps.json`, `.runtimeconfig.json`, language folders and `SchedulerManager.*` files alongside it.
 4. Open settings from the tray icon.
 5. Choose your language and configure shortcuts, mouse actions, desktop names and notifications.
 
@@ -111,22 +111,26 @@ The historical intermittent shortcut failure was not conclusively reproduced. Th
 
 ## Development and build
 
-Use Windows, a compatible .NET SDK/MSBuild installation and .NET Framework targeting packs. This release uses .NET SDK 8.0.427 targeting `net48`. The project also declares `net472`, which is not the release artifact documented here.
+Use Windows and .NET SDK 11.0.100 (`global.json`). The current deliverable targets `net11.0-windows10.0.26100.0`. Closed MetroRadiance and MetroTrilithon assemblies still come from the `net48` library folder; they are dependencies, not the application target.
 
 ```powershell
-git clone --recurse-submodules https://github.com/ThomasTrovon/SylphyHornPlus.git
+git clone --branch feature/taskbar-deskband --recurse-submodules https://github.com/ThomasTrovon/SylphyHornPlus.git
 Set-Location SylphyHornPlus
-dotnet build source/SylphyHorn/SylphyHorn.csproj -c Release -f net48 --disable-build-servers -p:UseSharedCompilation=false -p:OutputPath=bin/Candidate/
+dotnet build source/SylphyHorn/SylphyHorn.csproj -c Release --disable-build-servers -p:UseSharedCompilation=false
 ```
 
-Output: `source/SylphyHorn/bin/Candidate/`. Distribute the complete folder, not only the main executable.
+Output: `source/SylphyHorn/bin/Release/net11.0-windows10.0.26100.0/`. Distribute the complete folder, including dependencies, satellite assemblies and `SchedulerManager.exe`, not only the main executable.
+
+The VirtualDesktop submodule points to this fork's public .NET 11 compatibility branch. For a portable framework-dependent package, run `dotnet publish source/SylphyHorn/SylphyHorn.csproj -c Release -o artifacts/publish` and distribute the entire folder. .NET 11 is STS, not LTS.
 
 ### Regression checks
 
 ```powershell
 dotnet build tests/Regression/Regression.csproj -c Release --disable-build-servers -p:UseSharedCompilation=false
-& ./tests/Regression/bin/Release/net48/Regression.exe ./source/SylphyHorn/bin/Candidate/SylphyHorn.exe
+& ./tests/Regression/bin/Release/net11.0-windows10.0.26100.0/Regression.exe ./source/SylphyHorn/bin/Release/net11.0-windows10.0.26100.0/SylphyHorn.dll
 ```
+
+The isolated `--modern` mode checks theme compatibility, HSTRING, desktop names, pin/unpin and restored rename notifications; it can run while the installed app is open. `--topmost` checks always-on-top behavior. The latest run passed 332 common checks, 32 modern checks (the count depends on the number of desktops), and 11 topmost checks. Full scheduled restart and every Windows version were not validated.
 
 Checks cover modifiers, shortcuts, mouse handling, translation coverage, packaging and settings bindings. Interactive modes `--layout <output-folder>` and `--awake` exercise real Windows behavior: close the running application before using them. Layout mode loads real user settings and writes previews; awake mode temporarily renews idle activity. These modes are not headless CI tests.
 
@@ -170,10 +174,10 @@ docs/images/                     # README screenshots
 
 Atalhos de teclado e mouse, notificações, informações na barra de tarefas e correções práticas para trabalhar com várias áreas.
 
-![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4)
-![Versão](https://img.shields.io/badge/versão-4.5.1-blue)
-![Build](https://img.shields.io/badge/build-1-informational)
-![Framework](https://img.shields.io/badge/.NET_Framework-4.8-512BD4)
+![Windows](https://img.shields.io/badge/Windows-11-0078D4)
+![Versão](https://img.shields.io/badge/versão-4.6.0-blue)
+![Build](https://img.shields.io/badge/build-4-informational)
+![Framework](https://img.shields.io/badge/.NET-11-512BD4)
 ![Licença](https://img.shields.io/badge/licença-MIT-green)
 
 [![Baixar](https://img.shields.io/badge/Baixar-Versões-2ea44f?style=for-the-badge&logo=github)](https://github.com/ThomasTrovon/SylphyHornPlus/releases)
@@ -212,8 +216,8 @@ Este fork independente amplia o [Asteski/SylphyHornPlus](https://github.com/Aste
 
 | Requisito | Detalhes |
 |---|---|
-| Sistema operacional | Windows 10 ou 11; o mínimo informado pelo projeto original é Windows 10 build 14393 |
-| Runtime deste pacote | .NET Framework 4.8 |
+| Sistema operacional | Windows 11; esta versão tem como alvo a build 26100 e foi testada na build 26300. Versões anteriores do Windows não foram validadas |
+| Runtime deste pacote | .NET Desktop Runtime 11 (x64 para o pacote disponibilizado) |
 | Distribuição | Pasta portátil; extraia o arquivo inteiro |
 | Acesso administrativo | Opcional para uso normal; necessário para registrar a inicialização elevada |
 | Validação | Compilação Release e verificações de regressão no Windows 11; não validado em todas as builds do Windows nem em ARM |
@@ -224,7 +228,7 @@ A integração com áreas virtuais utiliza interfaces do Windows que podem mudar
 
 1. Baixe o pacote na página de [versões deste fork](https://github.com/ThomasTrovon/SylphyHornPlus/releases).
 2. Extraia a pasta completa para um local permanente.
-3. Execute `SylphyHorn.exe`, mantendo `lib`, as pastas de idiomas e `SchedulerManager.exe` junto dele.
+3. Execute `SylphyHorn.exe`, mantendo todas as DLLs, os arquivos `.deps.json` e `.runtimeconfig.json`, as pastas de idiomas e os arquivos `SchedulerManager.*` junto dele.
 4. Abra as configurações pelo ícone da bandeja.
 5. Escolha o idioma e configure atalhos, ações do mouse, nomes das áreas e notificações.
 
@@ -271,22 +275,26 @@ A falha intermitente histórica dos atalhos não foi reproduzida conclusivamente
 
 ## Desenvolvimento e compilação
 
-Utilize Windows, uma instalação compatível do .NET SDK/MSBuild e os pacotes de referência do .NET Framework. Esta entrega utiliza .NET SDK 8.0.427 para `net48`. O projeto também declara `net472`, que não é o artefato de entrega documentado aqui.
+Utilize Windows e o .NET SDK 11.0.100 (`global.json`). A entrega atual tem como alvo `net11.0-windows10.0.26100.0`. Os assemblies fechados MetroRadiance e MetroTrilithon continuam na pasta de bibliotecas `net48`; são dependências, não o alvo do aplicativo.
 
 ```powershell
-git clone --recurse-submodules https://github.com/ThomasTrovon/SylphyHornPlus.git
+git clone --branch feature/taskbar-deskband --recurse-submodules https://github.com/ThomasTrovon/SylphyHornPlus.git
 Set-Location SylphyHornPlus
-dotnet build source/SylphyHorn/SylphyHorn.csproj -c Release -f net48 --disable-build-servers -p:UseSharedCompilation=false -p:OutputPath=bin/Candidate/
+dotnet build source/SylphyHorn/SylphyHorn.csproj -c Release --disable-build-servers -p:UseSharedCompilation=false
 ```
 
-Saída: `source/SylphyHorn/bin/Candidate/`. Distribua a pasta completa, não apenas o executável principal.
+Saída: `source/SylphyHorn/bin/Release/net11.0-windows10.0.26100.0/`. Distribua a pasta completa, incluindo dependências, assemblies satélite e `SchedulerManager.exe`, não apenas o executável principal.
+
+O submódulo VirtualDesktop aponta para a branch pública de compatibilidade com .NET 11 deste fork. Para gerar um pacote portátil dependente do runtime, execute `dotnet publish source/SylphyHorn/SylphyHorn.csproj -c Release -o artifacts/publish` e distribua a pasta inteira. O .NET 11 é STS, não LTS.
 
 ### Verificações de regressão
 
 ```powershell
 dotnet build tests/Regression/Regression.csproj -c Release --disable-build-servers -p:UseSharedCompilation=false
-& ./tests/Regression/bin/Release/net48/Regression.exe ./source/SylphyHorn/bin/Candidate/SylphyHorn.exe
+& ./tests/Regression/bin/Release/net11.0-windows10.0.26100.0/Regression.exe ./source/SylphyHorn/bin/Release/net11.0-windows10.0.26100.0/SylphyHorn.dll
 ```
+
+O modo isolado `--modern` verifica tema, HSTRING, nomes das áreas, fixação/desafixação e notificações de renomeação com restauração; pode executar com o aplicativo instalado aberto. `--topmost` verifica o comportamento de manter janelas no topo. A última execução aprovou 332 verificações comuns, 32 modernas (a contagem depende da quantidade de áreas) e 11 de topo. O reinício agendado completo e todas as versões do Windows não foram validados.
 
 As verificações cobrem modificadores, atalhos, tratamento do mouse, traduções, empacotamento e vínculos das configurações. Os modos interativos `--layout <pasta-de-saída>` e `--awake` exercitam o comportamento real do Windows: feche o aplicativo em execução antes de utilizá-los. O modo de layout carrega configurações reais e grava prévias; o modo de energia renova temporariamente a atividade ociosa. Esses modos não são testes de CI sem interface gráfica.
 

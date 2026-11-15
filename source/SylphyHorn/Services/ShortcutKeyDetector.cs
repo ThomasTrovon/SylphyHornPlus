@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Open.WinKeyboardHook;
 using SylphyHorn.Services.Mouse;
 
 namespace SylphyHorn.Services
@@ -15,7 +14,7 @@ namespace SylphyHorn.Services
 	{
 		private readonly HashSet<Keys> _pressedModifiers = new HashSet<Keys>();
 		private readonly HashSet<Keys> _pressedMouseButtons = new HashSet<Keys>();
-		private readonly IKeyboardInterceptor _keyInterceptor = new KeyboardInterceptor();
+		private readonly KeyboardInterceptor _keyInterceptor = new KeyboardInterceptor();
 		private readonly IMouseInterceptor _mouseInterceptor = new MouseInterceptor();
 
 		private static readonly Keys[] ModifierKeys =
